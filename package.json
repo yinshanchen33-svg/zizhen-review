@@ -1,0 +1,18 @@
+{
+  "name": "zizhen-copy-review",
+  "version": "1.0.0",
+  "private": true,
+  "description": "普通日用商品宣传文案本地自查原型",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node scripts/build-offline.mjs && node --test tests.cjs server-tests.mjs public-tests.mjs delivery-tests.mjs",
+    "evaluate": "node evaluation/run.cjs",
+    "package": "node scripts/package-release.mjs",
+    "offline": "node scripts/build-offline.mjs",
+    "check-model": "node scripts/check-model.mjs",
+    "verify-model": "node scripts/check-model.mjs --live"
+  },
+  "engines": {
+    "node": ">=20.12"
+  }
+}
