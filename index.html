@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="普通日用商品中文宣传文案的本地自查原型。提供核查提示、官方依据和人工复核问题。">
+  <title>字斟 · 商品宣传文案合规自查助手</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="rules.js"></script>
+  <script defer src="report.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#check" aria-label="字斟首页">字斟<span>文案自查工具</span></a>
+      <nav aria-label="主导航">
+        <a href="#check" class="nav-link active" data-view="check">文案自查</a>
+        <a href="#sources" class="nav-link" data-view="sources">官方依据</a>
+        <a href="#guide" class="nav-link" data-view="guide">使用说明</a>
+      </nav>
+    </div>
+  </header>
+  <main id="app-content">
+    <p id="service-status" class="muted" role="status"></p>
+    <section id="view-check" class="view">
+      <div class="page-heading">
+        <div><h1>商品宣传文案自查</h1><p>检查需要核实的表达，整理发布前的人工复核事项。</p></div>
+        <span class="edition">普通日用品 / 中文文案</span>
+      </div>
+      <div class="scope-banner">
+        <span class="scope-label">使用范围</span>
+        <div><p>仅适用于普通日用商品的中文文字宣传，不处理医疗、药品、保健食品、医疗器械等特殊商品。</p><p>结果为自查提示，不认定违法、不预测处罚。<a href="#guide">查看完整范围与局限</a></p></div>
+      </div>
+      <section class="mode-panel" aria-label="运行模式">
+        <div><strong id="runtime-mode">当前模式：本地规则演示</strong></div>
+        <label class="model-choice"><input type="checkbox" id="use-model" disabled>启用模型补充复核（将文案发送至外部模型服务）</label>
+      </section>
+      <details class="demo-guide">
+        <summary>比赛演示 · 三分钟固定流程</summary>
+        <div class="demo-content">
+          <p>固定样例：这款收纳盒采用最佳设计，收纳效率提升50%，还搭载量子收纳技术。</p>
+          <ol><li><strong>输入：</strong>点击“载入比赛样例”，再点击“开始自查”。为保证复现，载入时切换为本地规则演示。</li><li><strong>分析：</strong>展示“最佳”“50%”“量子”三类提示，逐项看原文、解释、来源和人工问题。</li><li><strong>边界：</strong>“最佳”需结合绝对化用语指南看语境；“50%”需核实材料与范围；“量子”没有已确认的对应依据，明确标“需要人工核对”。最后复制报告，交给人工复核。</li></ol>
+          <button type="button" id="load-demo" class="secondary-button">载入比赛样例</button>
+        </div>
+      </details>
+      <div class="review-layout">
+        <section class="panel editor-panel" aria-labelledby="editor-title">
+          <div class="panel-heading"><h2 id="editor-title">待查文案</h2><button id="clear" class="text-button" type="button">清空</button></div>
+          <form id="check-form" novalidate>
+            <div class="field-row">
+              <label for="category">商品范围</label>
+              <select id="category">
+                <option value="ordinary">普通日用商品</option>
+                <option value="special">医疗 / 药品 / 保健食品 / 医疗器械等</option>
+                <option value="unsure">商品分类不确定</option>
+              </select>
+            </div>
+            <label class="field-label" for="copy">宣传文案</label>
+            <textarea id="copy" aria-describedby="input-hint input-error" placeholder="粘贴商品标题、详情页介绍或推广文案。&#10;&#10;请保留必要的上下文、数据出处和活动条件。" spellcheck="false"></textarea>
+            <div class="editor-meta"><span id="input-hint">最多 5,000 字符</span><span id="count">0 / 5,000 字符</span></div>
+            <div class="sample-row"><span>示例</span><button type="button" data-sample="claims">夸张宣传</button><button type="button" data-sample="plain">客观描述</button><button type="button" data-sample="special">超出范围</button></div>
+            <p id="input-error" class="error" role="alert" hidden></p>
+            <button class="primary-button submit-button" type="submit">开始自查</button>
+            <p class="privacy-note" id="privacy-note">本地规则模式：文案仅在本页处理，不上传、不保存历史。</p>
+          </form>
+        </section>
+        <section class="results-section" aria-labelledby="results-title">
+          <div class="results-heading"><h2 id="results-title">自查提示 <span id="result-count" class="count-badge" hidden></span></h2><div class="report-actions"><button id="copy-report" class="secondary-button copy-button" disabled>复制报告</button><button id="export" class="secondary-button" disabled>导出清单</button></div></div>
+          <p id="copy-feedback" class="copy-feedback" role="status" aria-live="polite" hidden></p>
+          <div id="result-status" role="status" aria-live="polite"></div>
+          <div id="results">
+            <div class="empty-state">
+              <span class="empty-label">尚未开始自查</span>
+              <h3>输入文案后，在这里查看提示</h3>
+              <p>点击“开始自查”，逐项核实原文表达与相关依据。</p>
+              <ol class="output-list">
+                <li><span>01</span>需要核查的原文片段</li>
+                <li><span>02</span>风险类型与通俗说明</li>
+                <li><span>03</span>官方法规或指南链接</li>
+                <li><span>04</span>需要人工核实的问题</li>
+                <li><span>05</span>更谨慎的改写建议</li>
+              </ol>
+              <p class="empty-note">词语命中只是初筛线索，最终判断需要结合上下文与事实。未命中也不代表合规。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+    <section id="view-sources" class="view document-view" hidden>
+      <div class="page-heading"><div><h1>官方依据</h1><p>用于定位相关要求，请结合完整文本与实际语境核查。</p></div></div>
+      <div id="source-list"></div>
+      <p class="muted">链接核对日期：2026-10-14。原型不会实时同步修法、地方执法口径或平台规则；发布前请复核现行有效版本。无法确认依据时，需要人工核对。</p>
+    </section>
+    <section id="view-guide" class="view document-view" hidden>
+      <div class="page-heading"><div><h1>使用说明</h1><p>工具负责词语初筛，具体语境和证明材料由人工核查。</p></div></div>
+      <div class="guide-cards">
+        <article class="panel"><h2>怎样使用</h2><ol><li>确认商品属于普通日用商品，粘贴完整中文文案，长度以输入框显示的限制为准。</li><li>点击“开始自查”，逐项查看匹配的原文与风险类型。</li><li>打开官方依据，核实商品事实、证据材料和适用语境。</li><li>参考改写方向自行修改，再次自查；可以导出核查清单。</li></ol></article>
+        <article class="panel"><h2>范围与局限</h2><p>仅覆盖中国大陆普通日用商品的中文文字宣传。医疗、药品、保健食品、医疗器械，以及食品、化妆品、消毒产品、农药、烟酒等专门监管品类均不在本原型范围内。商品分类不明时，请先人工确认。</p><p>不处理图片、音视频。关键词识别无法可靠理解否定、引用、反讽、谐音、变体或上下文；可能误报、漏报。不能核实商品真实性、检测报告或许可资质，也不覆盖全部法律要求。</p><p><strong>未命中不代表合规，改写不保证合规。</strong>本工具不提供合规评分、违法认定或处罚预测，也不能替代专业审查。</p></article>
+        <article class="panel"><h2>数据与改写</h2><p>本地规则模式在本页处理文案。启用模型复核后，文案会发送至外部模型服务，数据处理以其政策及账户设置为准。请勿提交敏感信息。</p><p>模型仅提供补充线索，仍需人工核实事实与依据。改写以核实事实为前提，“［待核实］”等占位符不能直接发布。</p></article>
+      </div>
+    </section>
+    <footer><span>字斟 · 商品宣传文案合规自查助手</span><span>仅供发布前自查参考</span></footer>
+  </main>
+  <dialog id="export-dialog" aria-labelledby="export-title">
+    <div class="panel-heading"><h2 id="export-title">导出核查清单</h2><button id="close-export" class="text-button" type="button">关闭</button></div>
+    <p class="muted">可下载文本文件，也可全选后复制。若内置浏览器未开始下载，请使用复制方式或在系统浏览器打开本页。</p>
+    <label class="sr-only" for="export-text">核查清单文本</label><textarea id="export-text" readonly></textarea>
+    <div class="export-actions"><button id="select-report" class="secondary-button" type="button">全选清单</button><button id="copy-dialog-report" class="secondary-button copy-button" type="button">复制报告</button><button id="download-report" class="primary-button" type="button">下载 .txt 文件</button></div>
+    <p id="export-feedback" class="muted" role="status"></p>
+  </dialog>
+</body>
+</html>
