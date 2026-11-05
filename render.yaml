@@ -1,0 +1,31 @@
+# Render Blueprint：最快路径是把本目录推到 GitHub，再在 Render 选 New > Blueprint。
+# 免费套餐（free）：15 分钟无访问会休眠，冷启动约 30-60 秒，评委首次打开稍慢属正常。
+services:
+  - type: web
+    name: zizhen-public-review
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install --omit=dev --no-audit --no-fund
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # 站点地址由 Render 注入的 RENDER_EXTERNAL_URL 自动确定，无需填 PUBLIC_ORIGIN。
+      - key: REVIEW_MODE
+        value: demo
+      - key: MODEL_PROVIDER
+        value: deepseek
+      - key: OPENAI_MODEL
+        value: deepseek-flash
+      - key: MAX_INPUT_CHARS
+        value: "3000"
+      - key: MAX_CONCURRENT_MODEL_CALLS
+        value: "2"
+      # 需要启用模型时，在 Render 控制台 Environment 页填写 OPENAI_API_KEY，再把 REVIEW_MODE 改为 model。
+      - key: OPENAI_API_KEY
+        sync: false
